@@ -40,6 +40,7 @@ Closing them one by one? Painful.
 | **Close All Others** | Closes every window except the one you're in |
 | **Smart File Detection** | Recognizes 50+ file extensions: `.py`, `.js`, `.html`, `.pdf`, `.csv`, `.md`, and more |
 | **Live Window List** | Shows all open windows with titles, labeled as `FILE` or `PAGE` |
+| **Select by Name** | Pick exactly which windows to close — useful when the taskbar truncates filenames |
 | **Compact UI** | Small popup that doesn't block your screen |
 | **Zero Data Collection** | Everything runs locally. No tracking, no analytics, no server calls |
 
@@ -89,6 +90,9 @@ Coming soon.
 3. Choose your action:
    - **Close Files** — closes only FILE windows (keeps your web pages)
    - **Close All** — closes everything except the current window
+   - **Select specific windows** — click the link below the buttons to expand a list with checkboxes, pick exactly which windows to close
+
+> **Why select by name?** When many files are open, the Windows taskbar often truncates or hides their titles — you can't tell which is which. The extension shows the full filename of every window, so you can close exactly the ones you want.
 
 ## Supported File Types
 

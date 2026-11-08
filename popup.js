@@ -99,10 +99,83 @@ async function close(filter) {
   }
 }
 
+const selectToggle = document.getElementById('selectToggle');
+const selectPanel = document.getElementById('selectPanel');
+const selectList = document.getElementById('selectList');
+const closeSelectedBtn = document.getElementById('closeSelectedBtn');
+const selectedCountEl = document.getElementById('selectedCount');
+
 const fileFilter = Object.assign(w => w.isFile, { filesOnly: true });
 const allFilter = Object.assign(() => true, { filesOnly: false });
 
 closeFilesBtn.addEventListener('click', () => close(fileFilter));
 closeAllBtn.addEventListener('click', () => close(allFilter));
+
+selectToggle.addEventListener('click', () => {
+  const open = selectPanel.classList.toggle('hidden');
+  selectToggle.classList.toggle('open', !selectPanel.classList.contains('hidden'));
+  selectToggle.textContent = selectPanel.classList.contains('hidden')
+    ? 'Select specific windows ▾'
+    : 'Select specific windows ▴';
+  if (!selectPanel.classList.contains('hidden')) renderSelectList();
+});
+
+function renderSelectList() {
+  const others = infos.filter(w => w.id !== myId);
+  if (others.length === 0) {
+    selectList.innerHTML = '<div class="empty-state">No other windows</div>';
+    closeSelectedBtn.disabled = true;
+    return;
+  }
+  selectList.innerHTML = others.map(w => {
+    const dot = w.isFile ? 'file' : 'page';
+    const badge = w.isFile
+      ? '<span class="badge badge-file">FILE</span>'
+      : '<span class="badge badge-page">PAGE</span>';
+    return `<label class="select-item">
+      <input type="checkbox" data-wid="${w.id}">
+      <span class="window-dot ${dot}"></span>
+      <span class="select-title">${esc(w.title)}</span>
+      ${badge}
+    </label>`;
+  }).join('');
+
+  selectList.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+  });
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const checked = selectList.querySelectorAll('input:checked').length;
+  selectedCountEl.textContent = checked;
+  closeSelectedBtn.disabled = checked === 0;
+}
+
+closeSelectedBtn.addEventListener('click', async () => {
+  const checked = [...selectList.querySelectorAll('input:checked')];
+  const ids = checked.map(cb => Number(cb.dataset.wid));
+  const n = ids.length;
+
+  closeSelectedBtn.querySelector('.btn-label').textContent = `Closing ${n}...`;
+  closeSelectedBtn.classList.add('closing-pulse');
+  closeSelectedBtn.disabled = true;
+
+  for (const id of ids) {
+    try { await chrome.windows.remove(id); } catch {}
+  }
+
+  closeSelectedBtn.classList.remove('closing-pulse');
+  closeSelectedBtn.classList.add('done');
+  closeSelectedBtn.querySelector('.btn-label').textContent = `Closed ${n}`;
+
+  await refresh();
+  renderSelectList();
+  closeSelectedBtn.classList.remove('done');
+
+  if (infos.filter(w => w.id !== myId).length === 0) {
+    setTimeout(() => window.close(), 700);
+  }
+});
 
 refresh();

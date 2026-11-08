@@ -151,6 +151,75 @@
       50% { opacity: 0.5; }
     }
     .closing-pulse { animation: pulse 0.4s ease infinite; }
+
+    /* Select specific windows */
+    .select-toggle {
+      text-align: center;
+      font-size: 10px; color: #6b7280;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .select-toggle:hover { color: #60a5fa; }
+    .select-toggle.open { color: #60a5fa; }
+
+    .select-panel {
+      margin-top: 8px;
+      animation: fadeIn 0.2s ease;
+    }
+    .select-panel.hidden { display: none; }
+
+    .select-list {
+      max-height: 140px;
+      overflow-y: auto;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 8px;
+    }
+    .select-list::-webkit-scrollbar { width: 3px; }
+    .select-list::-webkit-scrollbar-track { background: transparent; }
+    .select-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 3px; }
+
+    .select-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 10px;
+      font-size: 11px; color: #9ca3af;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .select-item:last-child { border-bottom: none; }
+    .select-item:hover { background: rgba(255, 255, 255, 0.04); }
+
+    .select-item input[type="checkbox"] {
+      accent-color: #60a5fa;
+      width: 13px; height: 13px;
+      flex-shrink: 0; cursor: pointer;
+    }
+
+    .select-item .select-title {
+      overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap; flex: 1;
+    }
+
+    .btn-select {
+      width: 100%;
+      padding: 8px;
+      border: none; border-radius: 8px;
+      font-family: inherit; font-size: 11px; font-weight: 600;
+      cursor: pointer; color: #fff;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      box-shadow: 0 3px 10px rgba(59, 130, 246, 0.25);
+      transition: all 0.15s ease;
+    }
+    .btn-select:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
+    .btn-select:disabled { cursor: default; opacity: 0.35; }
+    .btn-select.done {
+      background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+      box-shadow: 0 3px 10px rgba(34, 197, 94, 0.25) !important;
+      opacity: 1 !important;
+    }
   </style>
 </head>
 <body>
@@ -179,6 +248,15 @@
       <span class="btn-num" id="allCount">-</span>
       <span class="btn-sub">windows</span>
       <span class="btn-label">Close All</span>
+    </button>
+  </div>
+
+  <div class="select-toggle" id="selectToggle">Select specific windows ▾</div>
+
+  <div class="select-panel hidden" id="selectPanel">
+    <div class="select-list" id="selectList"></div>
+    <button class="btn btn-select" id="closeSelectedBtn" disabled>
+      <span class="btn-label">Close Selected (<span id="selectedCount">0</span>)</span>
     </button>
   </div>
 
