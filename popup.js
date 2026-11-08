@@ -4,27 +4,42 @@ const allCountEl = document.getElementById('allCount');
 const closeFilesBtn = document.getElementById('closeFilesBtn');
 const closeAllBtn = document.getElementById('closeAllBtn');
 const windowList = document.getElementById('windowList');
+const selectToggle = document.getElementById('selectToggle');
+const selectPanel = document.getElementById('selectPanel');
+const selectList = document.getElementById('selectList');
+const closeSelectedBtn = document.getElementById('closeSelectedBtn');
+const selectedCountEl = document.getElementById('selectedCount');
+const undoBar = document.getElementById('undoBar');
+const undoBtn = document.getElementById('undoBtn');
+const undoCountEl = document.getElementById('undoCount');
 
-const FILE_PATTERNS = [
-  /^file:\/\//,
-  /\.(txt|md|js|ts|jsx|tsx|py|html|css|json|xml|csv|log|yml|yaml|toml|ini|cfg|conf|sh|bash|bat|ps1|rb|go|rs|java|c|cpp|h|hpp|cs|php|sql|r|swift|kt|scala|lua|pl|ex|exs|hs|ml|vue|svelte|astro|mdx|ipynb|env|gitignore|dockerfile|makefile)$/i,
-];
+const FILE_EXTENSIONS = /\.(txt|md|js|ts|jsx|tsx|py|html|css|json|xml|csv|log|yml|yaml|toml|ini|cfg|conf|sh|bash|bat|ps1|rb|go|rs|java|c|cpp|h|hpp|cs|php|sql|r|swift|kt|scala|lua|pl|ex|exs|hs|ml|vue|svelte|astro|mdx|ipynb|env|gitignore|dockerfile|makefile|pdf|pptx|docx|xlsx|doc|ppt|xls)$/i;
 
-function isFileWindow(url) {
+function isFileUrl(url) {
   if (!url) return false;
-  if (url.startsWith('file://')) return true;
+  return url.startsWith('file://');
+}
+
+function hasFileExtension(url) {
+  if (!url) return false;
   const pathname = url.split('?')[0].split('#')[0];
-  return FILE_PATTERNS.some(p => p.test(pathname));
+  return FILE_EXTENSIONS.test(pathname);
 }
 
 async function getWindowInfo(w) {
   const tabs = await chrome.tabs.query({ windowId: w.id });
   const active = tabs.find(t => t.active) || tabs[0];
+  const allUrls = tabs.map(t => t.url || '');
+  const fileCount = allUrls.filter(u => isFileUrl(u)).length;
+  const allFile = tabs.length > 0 && fileCount === tabs.length;
   return {
     id: w.id,
     title: active?.title || 'Untitled',
     url: active?.url || '',
-    isFile: isFileWindow(active?.url || ''),
+    tabCount: tabs.length,
+    tabUrls: allUrls,
+    tabTitles: tabs.map(t => t.title || ''),
+    isFile: allFile,
   };
 }
 
@@ -36,6 +51,7 @@ function esc(s) {
 
 let infos = [];
 let myId = null;
+let lastClosed = null;
 
 async function refresh() {
   const cur = await chrome.windows.getCurrent();
@@ -66,22 +82,66 @@ async function refresh() {
           : w.isFile
           ? '<span class="badge badge-file">FILE</span>'
           : '<span class="badge badge-page">PAGE</span>';
+        const tabs = w.tabCount > 1 ? `<span class="tab-count">${w.tabCount} tabs</span>` : '';
         return `<div class="window-item ${mine ? 'current' : ''}">
           <span class="window-dot ${dot}"></span>
           <span class="window-title">${esc(w.title)}</span>
+          ${tabs}
           ${badge}
         </div>`;
       }).join('');
 }
 
-async function close(filter) {
+async function saveForUndo(targets) {
+  const data = [];
+  for (const w of targets) {
+    data.push({ urls: w.tabUrls, title: w.title });
+  }
+  try {
+    await chrome.storage.session.set({ lastClosed: data });
+  } catch {}
+  lastClosed = data;
+}
+
+function showUndo(count) {
+  undoCountEl.textContent = count;
+  undoBar.classList.remove('hidden');
+}
+
+undoBtn.addEventListener('click', async () => {
+  let data = lastClosed;
+  if (!data) {
+    try {
+      const stored = await chrome.storage.session.get('lastClosed');
+      data = stored.lastClosed;
+    } catch {}
+  }
+  if (!data || data.length === 0) return;
+
+  for (const win of data) {
+    const urls = (win.urls || []).filter(u => u && !u.startsWith('chrome://'));
+    if (urls.length > 0) {
+      await chrome.windows.create({ url: urls });
+    }
+  }
+
+  lastClosed = null;
+  try { await chrome.storage.session.remove('lastClosed'); } catch {}
+  undoBar.classList.add('hidden');
+  await refresh();
+});
+
+async function closeWindows(filter) {
   const targets = infos.filter(w => w.id !== myId && filter(w));
   const n = targets.length;
+  if (n === 0) return;
   const btn = filter.filesOnly ? closeFilesBtn : closeAllBtn;
 
   btn.querySelector('.btn-label').textContent = `Closing ${n}...`;
   btn.classList.add('closing-pulse');
   btn.disabled = true;
+
+  await saveForUndo(targets);
 
   for (const w of targets) {
     try { await chrome.windows.remove(w.id); } catch {}
@@ -93,26 +153,22 @@ async function close(filter) {
   btn.querySelector('.btn-sub').textContent = '';
   btn.querySelector('.btn-label').textContent = `Closed ${n}`;
 
+  showUndo(n);
   await refresh();
+
   if (infos.filter(w => w.id !== myId).length === 0) {
-    setTimeout(() => window.close(), 700);
+    setTimeout(() => window.close(), 1500);
   }
 }
-
-const selectToggle = document.getElementById('selectToggle');
-const selectPanel = document.getElementById('selectPanel');
-const selectList = document.getElementById('selectList');
-const closeSelectedBtn = document.getElementById('closeSelectedBtn');
-const selectedCountEl = document.getElementById('selectedCount');
 
 const fileFilter = Object.assign(w => w.isFile, { filesOnly: true });
 const allFilter = Object.assign(() => true, { filesOnly: false });
 
-closeFilesBtn.addEventListener('click', () => close(fileFilter));
-closeAllBtn.addEventListener('click', () => close(allFilter));
+closeFilesBtn.addEventListener('click', () => closeWindows(fileFilter));
+closeAllBtn.addEventListener('click', () => closeWindows(allFilter));
 
 selectToggle.addEventListener('click', () => {
-  const open = selectPanel.classList.toggle('hidden');
+  selectPanel.classList.toggle('hidden');
   selectToggle.classList.toggle('open', !selectPanel.classList.contains('hidden'));
   selectToggle.textContent = selectPanel.classList.contains('hidden')
     ? 'Select specific windows ▾'
@@ -132,10 +188,12 @@ function renderSelectList() {
     const badge = w.isFile
       ? '<span class="badge badge-file">FILE</span>'
       : '<span class="badge badge-page">PAGE</span>';
+    const tabs = w.tabCount > 1 ? `<span class="tab-count">${w.tabCount} tabs</span>` : '';
     return `<label class="select-item">
       <input type="checkbox" data-wid="${w.id}">
       <span class="window-dot ${dot}"></span>
       <span class="select-title">${esc(w.title)}</span>
+      ${tabs}
       ${badge}
     </label>`;
   }).join('');
@@ -156,25 +214,23 @@ closeSelectedBtn.addEventListener('click', async () => {
   const checked = [...selectList.querySelectorAll('input:checked')];
   const ids = checked.map(cb => Number(cb.dataset.wid));
   const n = ids.length;
+  if (n === 0) return;
 
-  closeSelectedBtn.querySelector('.btn-label').textContent = `Closing ${n}...`;
-  closeSelectedBtn.classList.add('closing-pulse');
+  const targets = infos.filter(w => ids.includes(w.id));
+  await saveForUndo(targets);
+
   closeSelectedBtn.disabled = true;
 
   for (const id of ids) {
     try { await chrome.windows.remove(id); } catch {}
   }
 
-  closeSelectedBtn.classList.remove('closing-pulse');
-  closeSelectedBtn.classList.add('done');
-  closeSelectedBtn.querySelector('.btn-label').textContent = `Closed ${n}`;
-
+  showUndo(n);
   await refresh();
   renderSelectList();
-  closeSelectedBtn.classList.remove('done');
 
   if (infos.filter(w => w.id !== myId).length === 0) {
-    setTimeout(() => window.close(), 700);
+    setTimeout(() => window.close(), 1500);
   }
 });
 

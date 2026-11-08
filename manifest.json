@@ -3,7 +3,7 @@
   "name": "Close Other Windows",
   "version": "1.0",
   "description": "Close all other Chrome windows with one click. Keep only the current window open.",
-  "permissions": ["windows", "tabs"],
+  "permissions": ["tabs", "storage"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

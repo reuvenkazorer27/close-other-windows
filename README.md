@@ -1,7 +1,7 @@
 # Close Other Windows — Chrome Extension
 
 <p align="center">
-  <img src="assets/demo-static.png" alt="Close Other Windows — Before and After" width="700">
+  <video src="assets/demo.mp4" width="600" autoplay loop muted></video>
 </p>
 
 <p align="center">
@@ -36,13 +36,13 @@ Closing them one by one? Painful.
 
 | Feature | Description |
 |---|---|
-| **Close Files Only** | Closes only file windows (`file://` URLs, code files) — keeps your web pages open |
+| **Close Files Only** | Closes only `file://` windows — keeps your web pages open |
 | **Close All Others** | Closes every window except the one you're in |
-| **Smart File Detection** | Recognizes 50+ file extensions: `.py`, `.js`, `.html`, `.pdf`, `.csv`, `.md`, and more |
-| **Live Window List** | Shows all open windows with titles, labeled as `FILE` or `PAGE` |
+| **Undo** | Accidentally closed something? Click **Undo** to reopen all closed windows |
 | **Select by Name** | Pick exactly which windows to close — useful when the taskbar truncates filenames |
+| **Tab Count** | See how many tabs each window has before closing it |
 | **Compact UI** | Small popup that doesn't block your screen |
-| **Zero Data Collection** | Everything runs locally. No tracking, no analytics, no server calls |
+| **100% Offline** | No external requests. No fonts loaded. No analytics. Everything runs locally |
 
 ## Installation
 
@@ -85,47 +85,36 @@ Coming soon.
 1. Click the extension icon in the toolbar
 2. You'll see a list of all open windows, each labeled:
    - 🟢 **KEEP** — your current window (never closes)
-   - 🟡 **FILE** — a file or document window
+   - 🟡 **FILE** — a `file://` window (local file opened in Chrome)
    - 🟣 **PAGE** — a regular web page
 3. Choose your action:
    - **Close Files** — closes only FILE windows (keeps your web pages)
    - **Close All** — closes everything except the current window
-   - **Select specific windows** — click the link below the buttons to expand a list with checkboxes, pick exactly which windows to close
+   - **Undo** — reopens all the windows you just closed
+   - **Select specific windows** — expand a list with checkboxes to pick exactly which windows to close
 
-> **Why select by name?** When many files are open, the Windows taskbar often truncates or hides their titles — you can't tell which is which. The extension shows the full filename of every window, so you can close exactly the ones you want.
+> **Why select by name?** When many files are open, the Windows taskbar often truncates or hides their titles — you can't tell which is which. The extension shows the full title of every window and how many tabs it has, so you can close exactly the ones you want.
 
-## Supported File Types
+## How File Detection Works
 
-The extension automatically detects files with these extensions:
+A window is labeled **FILE** only when **all** of its tabs are local `file://` URLs. This ensures that web pages (like GitHub, Stack Overflow, or documentation sites) are never accidentally closed by "Close Files".
 
-**Code:** `.js` `.ts` `.jsx` `.tsx` `.py` `.rb` `.go` `.rs` `.java` `.c` `.cpp` `.cs` `.php` `.swift` `.kt` `.scala` `.lua` `.r` `.pl` `.ex` `.hs` `.ml`
-
-**Web:** `.html` `.css` `.vue` `.svelte` `.astro` `.mdx`
-
-**Data:** `.json` `.xml` `.csv` `.sql` `.yml` `.yaml` `.toml`
-
-**Config:** `.ini` `.cfg` `.conf` `.env` `.gitignore` `.dockerfile` `.makefile`
-
-**Docs:** `.md` `.txt` `.log` `.ipynb`
-
-**Scripts:** `.sh` `.bash` `.bat` `.ps1`
-
-All `file://` URLs are detected regardless of extension.
+Windows with a mix of file and web tabs are labeled **PAGE** to protect against accidental data loss.
 
 ## Permissions
 
 | Permission | Why |
 |---|---|
-| `windows` | List and close browser windows |
-| `tabs` | Read tab titles and URLs for window list and file detection |
+| `tabs` | Read tab titles and URLs for the window list and file detection |
+| `storage` | Save closed window URLs so the Undo button can reopen them |
 
-**No data leaves your browser.** No analytics. No tracking. No server calls. Everything runs 100% locally.
+**No data leaves your browser.** No fonts are loaded externally. No analytics. No tracking. No server calls. Everything runs 100% locally.
 
 ## Tech Stack
 
 - **Manifest V3** — latest Chrome extension standard
 - **Vanilla JavaScript** — no frameworks, no build step, no dependencies
-- **Chrome Extensions API** — `chrome.windows` and `chrome.tabs`
+- **Chrome Extensions API** — `chrome.windows`, `chrome.tabs`, `chrome.storage.session`
 
 Total size: ~15 KB. Loads instantly.
 
@@ -141,8 +130,8 @@ Total size: ~15 KB. Loads instantly.
 
 - [ ] Keyboard shortcut support (e.g., `Alt+Shift+W`)
 - [ ] Option to close by domain (close all `localhost` windows)
-- [ ] Undo button (reopen last closed windows)
 - [ ] Chrome Web Store publishing
+- [ ] Incognito window support
 
 ## License
 

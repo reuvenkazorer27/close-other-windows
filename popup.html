@@ -3,18 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       width: 300px;
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: #13131d;
       color: #e0e0e0;
       padding: 14px;
     }
 
-    /* Header — compact single row */
     .header {
       display: flex;
       align-items: center;
@@ -41,7 +39,6 @@
     }
     .header .window-count span { color: #60a5fa; font-weight: 600; }
 
-    /* Window list — collapsible, compact */
     .window-list {
       max-height: 120px;
       overflow-y: auto;
@@ -77,6 +74,11 @@
       white-space: nowrap; flex: 1;
     }
 
+    .tab-count {
+      font-size: 8px; color: #6b7280;
+      flex-shrink: 0;
+    }
+
     .badge {
       font-size: 8px; font-weight: 700;
       padding: 1px 5px; border-radius: 3px;
@@ -91,7 +93,6 @@
       color: #4b5563; font-size: 11px;
     }
 
-    /* Buttons — side by side */
     .btn-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -151,6 +152,31 @@
       50% { opacity: 0.5; }
     }
     .closing-pulse { animation: pulse 0.4s ease infinite; }
+
+    /* Undo bar */
+    .undo-bar {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex; align-items: center; gap: 6px;
+      animation: fadeIn 0.2s ease;
+    }
+    .undo-bar.hidden { display: none; }
+    .undo-bar .undo-text {
+      font-size: 10px; color: #9ca3af; flex: 1;
+    }
+    .undo-bar .undo-text span { color: #60a5fa; font-weight: 600; }
+    .undo-btn {
+      padding: 3px 10px;
+      border: none; border-radius: 5px;
+      font-family: inherit; font-size: 10px; font-weight: 600;
+      cursor: pointer; color: #fff;
+      background: #3b82f6;
+      transition: all 0.15s ease;
+    }
+    .undo-btn:hover { filter: brightness(1.15); }
 
     /* Select specific windows */
     .select-toggle {
@@ -215,11 +241,6 @@
     }
     .btn-select:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
     .btn-select:disabled { cursor: default; opacity: 0.35; }
-    .btn-select.done {
-      background: linear-gradient(135deg, #22c55e, #16a34a) !important;
-      box-shadow: 0 3px 10px rgba(34, 197, 94, 0.25) !important;
-      opacity: 1 !important;
-    }
   </style>
 </head>
 <body>
@@ -251,7 +272,12 @@
     </button>
   </div>
 
-  <div class="select-toggle" id="selectToggle">Select specific windows ▾</div>
+  <div class="undo-bar hidden" id="undoBar">
+    <div class="undo-text">Closed <span id="undoCount">0</span> windows</div>
+    <button class="undo-btn" id="undoBtn">Undo</button>
+  </div>
+
+  <div class="select-toggle" id="selectToggle">Select specific windows &#9662;</div>
 
   <div class="select-panel hidden" id="selectPanel">
     <div class="select-list" id="selectList"></div>
