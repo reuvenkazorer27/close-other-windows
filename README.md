@@ -39,8 +39,14 @@ Closing them one by one? Painful.
 | **Close Files Only** | Closes only `file://` windows — keeps your web pages open |
 | **Close All Others** | Closes every window except the one you're in |
 | **Undo** | Accidentally closed something? Click **Undo** to reopen all closed windows |
-| **Select by Name** | Pick exactly which windows to close — useful when the taskbar truncates filenames |
+| **Select by Name** | Pick exactly which windows to close — with Select All / Deselect All |
+| **File Type Badges** | See the file extension (PDF, PY, DOCX) as a badge next to each window |
 | **Tab Count** | See how many tabs each window has before closing it |
+| **URL Tooltips** | Hover any window to see its full URL |
+| **Real-time Updates** | Window list updates automatically when windows open or close |
+| **Keyboard Shortcut** | Open the popup with `Alt+Shift+W` (customizable in `chrome://extensions/shortcuts`) |
+| **Mass Close Confirmation** | Closing 5+ windows asks for confirmation first |
+| **All Window Types** | Detects normal windows, popups (e.g. Moodle/LMS file viewers), and app windows |
 | **Compact UI** | Small popup that doesn't block your screen |
 | **100% Offline** | No external requests. No fonts loaded. No analytics. Everything runs locally |
 
@@ -82,24 +88,26 @@ Coming soon.
 
 ## How to Use
 
-1. Click the extension icon in the toolbar
+1. Click the extension icon in the toolbar (or press `Alt+Shift+W`)
 2. You'll see a list of all open windows, each labeled:
    - 🟢 **KEEP** — your current window (never closes)
-   - 🟡 **FILE** — a `file://` window (local file opened in Chrome)
+   - 🟡 **FILE** / **PDF** / **PY** etc. — a local file opened in Chrome (shows the extension type)
    - 🟣 **PAGE** — a regular web page
 3. Choose your action:
    - **Close Files** — closes only FILE windows (keeps your web pages)
    - **Close All** — closes everything except the current window
    - **Undo** — reopens all the windows you just closed
-   - **Select specific windows** — expand a list with checkboxes to pick exactly which windows to close
+   - **Select specific windows** — expand a list with checkboxes, use Select All / Deselect All, and close exactly what you pick
 
 > **Why select by name?** When many files are open, the Windows taskbar often truncates or hides their titles — you can't tell which is which. The extension shows the full title of every window and how many tabs it has, so you can close exactly the ones you want.
 
 ## How File Detection Works
 
-A window is labeled **FILE** only when **all** of its tabs are local `file://` URLs. This ensures that web pages (like GitHub, Stack Overflow, or documentation sites) are never accidentally closed by "Close Files".
+A window is labeled as a **file** when any of its tabs are `file://` URLs — local files opened directly in Chrome. This covers PDFs, Python scripts, HTML files, and any other file your browser can display.
 
-Windows with a mix of file and web tabs are labeled **PAGE** to protect against accidental data loss.
+Windows opened by web apps like **Moodle** or other LMS platforms as popup windows are also detected, regardless of window type (normal, popup, or app).
+
+Web URLs (like `github.com/page.html` or `moodle.ariel.ac.il/view.php`) are **not** flagged as files, even if they end in a file-like extension — only true local `file://` paths count.
 
 ## Permissions
 
@@ -128,7 +136,6 @@ Total size: ~15 KB. Loads instantly.
 
 ### Ideas for Contributions
 
-- [ ] Keyboard shortcut support (e.g., `Alt+Shift+W`)
 - [ ] Option to close by domain (close all `localhost` windows)
 - [ ] Chrome Web Store publishing
 - [ ] Incognito window support

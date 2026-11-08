@@ -40,7 +40,7 @@
     .header .window-count span { color: #60a5fa; font-weight: 600; }
 
     .window-list {
-      max-height: 120px;
+      max-height: 200px;
       overflow-y: auto;
       margin-bottom: 10px;
       border-radius: 8px;
@@ -241,6 +241,15 @@
     }
     .btn-select:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
     .btn-select:disabled { cursor: default; opacity: 0.35; }
+
+    .select-all-btn {
+      font-family: inherit; font-size: 10px; font-weight: 600;
+      color: #60a5fa; background: none; border: none;
+      cursor: pointer; padding: 2px 0; margin-bottom: 4px;
+      transition: color 0.15s;
+    }
+    .select-all-btn:hover { color: #93c5fd; }
+    .select-all-btn.hidden { display: none; }
   </style>
 </head>
 <body>
@@ -280,6 +289,7 @@
   <div class="select-toggle" id="selectToggle">Select specific windows &#9662;</div>
 
   <div class="select-panel hidden" id="selectPanel">
+    <button class="select-all-btn" id="selectAllBtn" style="display:none">Select all</button>
     <div class="select-list" id="selectList"></div>
     <button class="btn btn-select" id="closeSelectedBtn" disabled>
       <span class="btn-label">Close Selected (<span id="selectedCount">0</span>)</span>
