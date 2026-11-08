@@ -30,7 +30,7 @@ async function getWindowInfo(w) {
   const tabs = await chrome.tabs.query({ windowId: w.id });
   const active = tabs.find(t => t.active) || tabs[0];
   const allUrls = tabs.map(t => t.url || '');
-  const fileCount = allUrls.filter(u => isFileUrl(u)).length;
+  const fileCount = allUrls.filter(u => isFileUrl(u) || hasFileExtension(u)).length;
   const hasFiles = fileCount > 0;
   return {
     id: w.id,
