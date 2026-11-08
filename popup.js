@@ -14,45 +14,42 @@ const undoBtn = document.getElementById('undoBtn');
 const undoCountEl = document.getElementById('undoCount');
 const selectAllBtn = document.getElementById('selectAllBtn');
 
-// #17: Set instead of giant regex — easier to maintain
-const FILE_EXTENSIONS = new Set([
-  'txt','md','js','ts','jsx','tsx','py','css','json','xml','csv','log',
+// Document extensions — safe to detect on any URL (web or file://)
+const DOCUMENT_EXTENSIONS = new Set([
+  'pdf','pptx','docx','xlsx','doc','ppt','xls',
+  'csv','ipynb','txt','md','log',
+]);
+
+// Code/config extensions — only detect on file:// URLs to avoid
+// false positives on web URLs like moodlearn.ariel.ac.il/view.php
+const CODE_EXTENSIONS = new Set([
+  'js','ts','jsx','tsx','py','css','json','xml',
   'yml','yaml','toml','ini','cfg','conf','sh','bash','bat','ps1',
   'rb','go','rs','java','c','cpp','h','hpp','cs','sql','r',
   'swift','kt','scala','lua','pl','ex','exs','hs','ml',
-  'vue','svelte','astro','mdx','ipynb',
-  'pdf','pptx','docx','xlsx','doc','ppt','xls',
+  'vue','svelte','astro','mdx','html','php',
 ]);
 
-function isFileUrl(url) {
-  if (!url) return false;
-  return url.startsWith('file://');
-}
-
-// #1 #16: Only check extensions on file:// URLs, not on http/chrome-extension URLs
-function getFileExtension(url) {
+function getUrlExtension(url) {
   if (!url) return null;
   const pathname = url.split('?')[0].split('#')[0];
   const dot = pathname.lastIndexOf('.');
   if (dot === -1) return null;
-  const ext = pathname.slice(dot + 1).toLowerCase();
-  return FILE_EXTENSIONS.has(ext) ? ext : null;
+  return pathname.slice(dot + 1).toLowerCase();
 }
 
 function isFileTab(url) {
   if (!url) return false;
-  if (isFileUrl(url)) return true;
-  // Only check extension for file:// URLs to avoid false positives
-  // on web URLs like moodlearn.ariel.ac.il/view.php
+  if (url.startsWith('file://')) return true;
+  if (url.startsWith('chrome://') || url.startsWith('chrome-extension://')) return false;
+  const ext = getUrlExtension(url);
+  if (ext && DOCUMENT_EXTENSIONS.has(ext)) return true;
   return false;
 }
 
 function getExtLabel(url) {
-  if (!url) return null;
-  const pathname = url.split('?')[0].split('#')[0];
-  const dot = pathname.lastIndexOf('.');
-  if (dot === -1) return null;
-  return pathname.slice(dot + 1).toUpperCase();
+  const ext = getUrlExtension(url);
+  return ext ? ext.toUpperCase() : null;
 }
 
 async function getWindowInfo(w) {
