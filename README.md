@@ -1,7 +1,7 @@
 # Close Other Windows — Chrome Extension
 
 <p align="center">
-  <img src="assets/demo.gif" alt="Close Other Windows Demo" width="500">
+  <img src="assets/demo-static.png" alt="Close Other Windows — Before and After" width="700">
 </p>
 
 <p align="center">
@@ -42,23 +42,6 @@ Closing them one by one? Painful.
 | **Live Window List** | Shows all open windows with titles, labeled as `FILE` or `PAGE` |
 | **Compact UI** | Small popup that doesn't block your screen |
 | **Zero Data Collection** | Everything runs locally. No tracking, no analytics, no server calls |
-
-## Demo
-
-<p align="center">
-  <img src="assets/screenshot-before.png" alt="Before — many windows open" width="400">
-  <br><em>Before: 12 file windows cluttering the taskbar</em>
-</p>
-
-<p align="center">
-  <img src="assets/screenshot-popup.png" alt="Extension popup" width="300">
-  <br><em>Click the extension — see all windows, choose what to close</em>
-</p>
-
-<p align="center">
-  <img src="assets/screenshot-after.png" alt="After — clean desktop" width="400">
-  <br><em>After: only the window you need</em>
-</p>
 
 ## Installation
 
