@@ -58,7 +58,7 @@ async function refresh() {
   myId = cur.id;
   const raw = await chrome.windows.getAll();
 
-  const wins = raw.filter(w => w.type === 'normal' || w.type === 'popup');
+  const wins = raw.filter(w => w.type !== 'devtools');
 
   infos = await Promise.all(wins.map(getWindowInfo));
   infos.sort((a, b) => (a.id === myId ? -1 : b.id === myId ? 1 : 0));
