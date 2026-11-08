@@ -31,7 +31,7 @@ async function getWindowInfo(w) {
   const active = tabs.find(t => t.active) || tabs[0];
   const allUrls = tabs.map(t => t.url || '');
   const fileCount = allUrls.filter(u => isFileUrl(u)).length;
-  const allFile = tabs.length > 0 && fileCount === tabs.length;
+  const hasFiles = fileCount > 0;
   return {
     id: w.id,
     title: active?.title || 'Untitled',
@@ -39,7 +39,7 @@ async function getWindowInfo(w) {
     tabCount: tabs.length,
     tabUrls: allUrls,
     tabTitles: tabs.map(t => t.title || ''),
-    isFile: allFile,
+    isFile: hasFiles,
   };
 }
 

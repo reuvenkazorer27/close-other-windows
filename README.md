@@ -1,7 +1,7 @@
 # Close Other Windows — Chrome Extension
 
 <p align="center">
-  <video src="assets/demo.mp4" width="600" autoplay loop muted></video>
+  <video src="https://github.com/reuvenkazorer27/close-other-windows/raw/master/assets/demo.mp4" width="600" controls></video>
 </p>
 
 <p align="center">
